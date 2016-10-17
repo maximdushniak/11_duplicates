@@ -13,18 +13,14 @@ def create_parser():
 def get_files(path):
     files_size_dict = {}
     for root, dirs, files in os.walk(path):
-        for file in files:
-            filepath = root + '\\' + file
-            if files_size_dict.get((file, os.stat(filepath).st_size)):
-                files_size_dict[(file, os.stat(filepath).st_size)].append(filepath)
+        for particular_file in files:
+            filepath = root + '\\' + particular_file
+            if files_size_dict.get((particular_file, os.stat(filepath).st_size)):
+                files_size_dict[(particular_file, os.stat(filepath).st_size)].append(filepath)
             else:
-                files_size_dict[(file, os.stat(filepath).st_size)] = [filepath]
+                files_size_dict[(particular_file, os.stat(filepath).st_size)] = [filepath]
 
     return files_size_dict
-
-
-def get_duplicates_files(files):
-    return [i for i in files.values() if len(i)>1]
 
 
 if __name__ == '__main__':
@@ -35,14 +31,15 @@ if __name__ == '__main__':
     if namespace.path:
         path = namespace.filepath
     else:
-        path = input('Insert path:')
+        path = input('Введите путь к папке:')
 
     files = get_files(path)
 
-    duplicates_files = get_duplicates_files(files)
+    duplicates_files = list(filter(lambda x: len(files[x]) > 1, files))
 
     if duplicates_files:
-        print('Found:')
-        print(duplicates_files)
+        print('Найдено {} дубль(ей):'.format(len(duplicates_files)))
+        for duplicate in duplicates_files:
+            print(duplicate[0], "({} byte)".format(duplicate[1]), files[duplicate])
     else:
-        print('Not found.')
+        print('Дупликаты файлов не найдены.')
